@@ -8,18 +8,19 @@ import os
 random.seed(0)
 
 def initialize_vanilla_model(mconf):
-    attention_model = None
     ### TODO:
     ### [part c]: Make some model here
 
     ### START CODE HERE
-    attention_model = GPT(mconf)
-    return attention_model
+    mconf.attention_type = 'self'
+    attention_model = GPT(mconf,mconf.attention_type)
     ### END CODE HERE
     return attention_model
 
 def initialize_perceiver_model(mconf, bottleneck_dim=32):
-    attention_model = None
+    mconf.attention_type = 'cross'
+    mconf.bottleneck_dim = bottleneck_dim
+    attention_model =  GPT(mconf,mconf.attention_type)
     ### TODO
     ### [part g]: Make some other model here
 

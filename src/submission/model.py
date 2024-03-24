@@ -30,10 +30,12 @@ class GPTConfig:
     attn_pdrop = 0.1
     perceiver = False
     bottleneck_dim = None
+    attention_type = 'self' 
 
-    def __init__(self, vocab_size, block_size, **kwargs):
+    def __init__(self, vocab_size, block_size,attention_type='self', **kwargs):
         self.vocab_size = vocab_size
         self.block_size = block_size
+        self.attention_type = attention_type
         for k,v in kwargs.items():
             setattr(self, k, v)
 
@@ -46,11 +48,15 @@ class GPT1Config(GPTConfig):
 class Block(nn.Module):
     """ an unassuming Transformer block """
 
-    def __init__(self, config):
+    def __init__(self, config,attention_block):
         super().__init__()
         self.ln1 = nn.LayerNorm(config.n_embd)
         self.ln2 = nn.LayerNorm(config.n_embd)
-        self.attn = CausalSelfAttention(config)
+        self.attn = attention_block
+        
+        
+#         self.attn = CausalSelfAttention(config)
+  
         self.mlp = nn.Sequential(
             nn.Linear(config.n_embd, 4 * config.n_embd),
             nn.GELU(),
@@ -131,15 +137,31 @@ class UpProjectBlock(nn.Module):
 class GPT(nn.Module):
     """  the full GPT language model, with a context size of block_size """
 
-    def __init__(self, config):
+    def __init__(self, config,attention_block):
         super().__init__()
 
         # input embedding stem
         self.tok_emb = nn.Embedding(config.vocab_size, config.n_embd)
         self.pos_emb = nn.Parameter(torch.zeros(1, config.block_size, config.n_embd))
         self.drop = nn.Dropout(config.embd_pdrop)
-        # transformer
+        
         self.perceiver = config.perceiver
+        
+        
+        # transformer
+        self.blocks = nn.ModuleList()
+        for _ in range(config.n_layer):
+            if config.perceiver:
+                if config.attention_type == 'cross':
+                    attention_block = CausalCrossAttention(config)
+                else:
+                    attention_block = CausalSelfAttention(config)
+            else:
+                attention_block = CausalSelfAttention(config)
+            block = Block(config,attention_block)
+            self.blocks.append(block)
+        
+        
         if config.perceiver:
             input_block_size = config.block_size
 
@@ -148,7 +170,7 @@ class GPT(nn.Module):
 
             # bottleneck basis based causal mask
             config.block_size = config.bottleneck_dim
-            self.blocks = nn.Sequential(*[Block(config) for _ in range(config.n_layer-2)])
+            self.blocks = nn.Sequential(*[Block(config,attention_block) for _ in range(config.n_layer-2)])
 
             # reset value of the block size back to the original.
             config.block_size = input_block_size
@@ -156,7 +178,9 @@ class GPT(nn.Module):
 
 
         else:
-            self.blocks = nn.Sequential(*[Block(config) for _ in range(config.n_layer)])
+            self.blocks = nn.Sequential(*[Block(config,attention_block) for _ in range(config.n_layer)])
+       
+    
         # decoder head
         self.ln_f = nn.LayerNorm(config.n_embd)
         self.head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
