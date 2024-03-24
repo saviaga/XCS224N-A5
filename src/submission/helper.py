@@ -1,9 +1,10 @@
 from .model import GPT
-from .dataset import NameDataset
+from .dataset import NameDataset,CharCorruptionDataset
 from .trainer import Trainer, TrainerConfig
 
 import torch
 import random
+import os
 random.seed(0)
 
 def initialize_vanilla_model(mconf):
@@ -71,7 +72,8 @@ def finetune(reading_params_path, finetune_corpus_path, pretrain_dataset, block_
 
         model.load_state_dict(torch.load(reading_params_path, map_location=torch.device('cpu')))
 
-    
+    finetune_dataset = NameDataset(finetune_corpus_path, pretrain_dataset)
+
     ### END CODE HERE
     return tconf, trainer_obj
 
@@ -91,11 +93,26 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
     ###     warmup_tokens=512*20
     ###     final_tokens=200*len(pretrain_dataset)*block_size
     ###     num_workers=4
+    
 
-    trainer_obj = None #Trainer object (see trainer.py for more details)
-    tconf = None #TrainerConfig object (see trainer.py for more details)
+    # Now, data is a string containing the contents of your dataset file
+
+
+    
+    tconf = TrainerConfig(max_epochs=650, batch_size=128, learning_rate=pretrain_lr,
+                          lr_decay=True, warmup_tokens=512*20,
+                          final_tokens=200*len(pretrain_dataset)*block_size,
+                          num_workers=4) #TrainerConfig object (see trainer.py for more details)
+    trainer_obj =Trainer(model, pretrain_dataset, None, tconf) #Trainer object (see trainer.py for more details)
 
     ### START CODE HERE
+
+
+# Get the directory of the current file (__file__ is the path to the current script)
+    print(os.getcwd())
+
+    pretrain_dataset = CharCorruptionDataset(open('data/wiki.txt', encoding='utf-8').read(), 128) 
+
     ### END CODE HERE
     return tconf, trainer_obj
 

@@ -176,6 +176,32 @@ class CharCorruptionDataset(Dataset):
         ### [part e]: see spec above
 
         ### START CODE HERE
+        document = self.data[idx]
+
+        truncated_length = random.randint(4, min(len(document), int(self.block_size * 3 / 4)))
+        document = document[:truncated_length]
+
+        mask_length = max(1, random.randint(1, max(1, int(len(document) * self.masking_percent * 2))))
+        start_mask = random.randint(0, max(0, len(document) - mask_length))
+        end_mask = start_mask + mask_length
+
+        prefix = document[:start_mask]
+        masked_content = document[start_mask:end_mask]
+        suffix = document[end_mask:]
+
+        masked_string = prefix + self.MASK_CHAR + suffix + self.MASK_CHAR + masked_content + self.MASK_CHAR
+        padded_length = self.block_size - len(masked_string)
+        masked_string += self.PAD_CHAR * padded_length
+
+        x_str = masked_string[:-1]
+        y_str = masked_string[1:]
+
+        x = torch.tensor([self.stoi[c] for c in x_str], dtype=torch.long)
+        y = torch.tensor([self.stoi[c] for c in y_str], dtype=torch.long)
+
+        return x, y
+        
+        
         ### END CODE HERE
 
         raise NotImplementedError
