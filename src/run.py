@@ -128,7 +128,7 @@ def main():
                           attention_type='self' if args['--variant'] == 'vanilla' else 'cross')
         attention_model = create_model(args, mconf)
         attention_model = attention_model.to(device)
-    #attention_model = create_model(args, mconf)
+    attention_model = create_model(args, mconf)
 
     datetime_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
