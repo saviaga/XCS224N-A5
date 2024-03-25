@@ -113,7 +113,6 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
 
 
     pretrain_dataset = CharCorruptionDataset(open('./../data/wiki.txt', encoding='utf-8').read(), 128) 
-    print(pretrain_dataset)
 
     ### END CODE HERE
     return tconf, trainer_obj
