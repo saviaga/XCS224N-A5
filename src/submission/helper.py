@@ -110,9 +110,10 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
 
 
 # Get the directory of the current file (__file__ is the path to the current script)
-    print(os.getcwd())
 
-    pretrain_dataset = CharCorruptionDataset(open('data/wiki.txt', encoding='utf-8').read(), 128) 
+
+    pretrain_dataset = CharCorruptionDataset(open('./../data/wiki.txt', encoding='utf-8').read(), 128) 
+    print(pretrain_dataset)
 
     ### END CODE HERE
     return tconf, trainer_obj
