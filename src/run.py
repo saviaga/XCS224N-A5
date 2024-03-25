@@ -117,8 +117,8 @@ def main():
 
     # We don't suggest you change these hyperparameters, as they're known to work.
     # use them for both the vanilla and the perceiver models
-#     mconf = GPTConfig(pretrain_dataset.vocab_size, pretrain_dataset.block_size,
-#         n_layer=4, n_head=8, n_embd=256)
+     mconf = GPTConfig(pretrain_dataset.vocab_size, pretrain_dataset.block_size,
+         n_layer=4, n_head=8, n_embd=256)
 
     # Create model
     
@@ -128,7 +128,7 @@ def main():
                           attention_type='self' if args['--variant'] == 'vanilla' else 'cross')
         attention_model = create_model(args, mconf)
         attention_model = attention_model.to(device)
-    attention_model = create_model(args, mconf)
+
 
     datetime_str = datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -166,6 +166,7 @@ def main():
         _, trainer_obj = pretrain(pretrain_dataset, block_size, attention_model, pretrain_lr, writer)
         train(attention_model, args['--writing_params_path'], trainer_obj)
     else:
+        attention_model = create_model(args, mconf)
         evaluate(args, pretrain_dataset, device, attention_model)
     
 if __name__ == '__main__':
