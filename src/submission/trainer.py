@@ -66,6 +66,7 @@ class Trainer:
     def train(self):
         model, config = self.model, self.config
 
+
         # create the optimizer
         no_decay = ["bias", "LayerNorm.weight"]
         params_decay = [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)]
@@ -82,10 +83,14 @@ class Trainer:
             model.train(is_train)
             data = self.train_dataset if is_train else self.test_dataset
             loader = DataLoader(data, batch_size=config.batch_size, num_workers=config.num_workers)
+            #debbuging
+            print(f"Running {split} epoch with dataset length: {len(data)}")
 
             losses = []
             pbar = tqdm(enumerate(loader), total=len(loader)) if is_train else enumerate(loader)
             for it, (x, y) in pbar:
+                
+             
 
                 # place data on the correct device
                 x = x.to(self.device)
@@ -134,6 +139,10 @@ class Trainer:
 
         self.tokens = 0 # counter used for learning rate decay
         for epoch in range(config.max_epochs):
+            
+            
+           
+
 
             run_epoch('train')
             if self.test_dataset is not None:

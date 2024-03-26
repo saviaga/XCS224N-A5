@@ -67,21 +67,33 @@ def finetune(reading_params_path, finetune_corpus_path, pretrain_dataset, block_
     tconf = None #TrainerConfig object (see trainer.py for more details)
     
     ### START CODE HERE
-    finetune_dataset = NameDataset(finetune_corpus_path, pretrain_dataset)
- 
-    tconf = TrainerConfig( max_epochs=75,
-                    batch_size=256,
-                    learning_rate=6e-4,
-                    lr_decay=True,
-                    warmup_tokens=512*20,
-                    final_tokens=200*len(pretrain_dataset)*block_size,
-                    num_workers=4) #TrainerConfig object (see trainer.py for more details)
-    
-    trainer_obj = Trainer(model, finetune_dataset, None, tconf) #Trainer object (see trainer.py for more details)
+    max_epochs = 75 if reading_params_path is None else 10
+    batch_size = 256
+    learning_rate = finetune_lr
+    lr_decay = True
+    warmup_tokens = 512 * 20
+    final_tokens = 200 * len(pretrain_dataset) * block_size
+    num_workers = 4
+
+    tconf = TrainerConfig(
+        max_epochs=max_epochs,
+        batch_size=batch_size,
+        learning_rate=learning_rate,
+        lr_decay=lr_decay,
+        warmup_tokens=warmup_tokens,
+        final_tokens=final_tokens,
+        num_workers=num_workers
+    )
 
     if reading_params_path is not None:
+        pretrained_state_dict = torch.load(reading_params_path, map_location=torch.device('cpu'))
+        model.load_state_dict(pretrained_state_dict)
 
-        model.load_state_dict(torch.load(reading_params_path, map_location=torch.device('cpu')))
+    data = open(finetune_corpus_path, 'r').read() 
+    train_dataset = NameDataset(data, pretrain_dataset)
+
+    trainer_obj = Trainer(model, train_dataset, None, tconf)
+    trainer_obj.train()
 
  
     ### END CODE HERE
@@ -109,29 +121,27 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
     trainer_obj = None #Trainer object (see trainer.py for more details)
     tconf = None #TrainerConfig object (see trainer.py for more details)
     
+    max_epochs = 650
+    batch_size = 128
+    learning_rate = pretrain_lr
+    lr_decay = True
+    warmup_tokens = 512 * 20
+    final_tokens = 200 * len(pretrain_dataset) * block_size
+    num_workers = 4
 
-
-    
     tconf = TrainerConfig(
-                    max_epochs=650,
-                    batch_size=128,
-                    learning_rate=6e-3,
-                    lr_decay=True,
-                    warmup_tokens=512*20,
-                    final_tokens=200*len(pretrain_dataset)*block_size,
-                    num_workers=4
-    ) #TrainerConfig object (see trainer.py for more details)
-  
-    trainer_obj =Trainer(model, pretrain_dataset, None, tconf) #Trainer object (see trainer.py for more details)
+        max_epochs=max_epochs,
+        batch_size=batch_size,
+        learning_rate=learning_rate,
+        lr_decay=lr_decay,
+        warmup_tokens=warmup_tokens,
+        final_tokens=final_tokens,
+        num_workers=num_workers
+    )
 
-    ### START CODE HERE
+    trainer_obj = Trainer(model, pretrain_dataset, None, tconf)
+    trainer_obj.train()
 
-
-# Get the directory of the current file (__file__ is the path to the current script)
-
-
-    pretrain_dataset = CharCorruptionDataset(open('./../data/wiki.txt', encoding='utf-8').read(), 128) 
-    print(pretrain_dataset)
 
     ### END CODE HERE
     return tconf, trainer_obj
@@ -146,8 +156,8 @@ def train(model, writing_params_path, trainer_obj):
 
     ### START CODE HERE
     trainer_obj.train()
-    
-    # Save the trained model parameters
-    torch.save(model.state_dict(), writing_params_path)
+
+    # Save the trained model parameters 
+    torch.save(model.state_dict(), writing_params_path)    
     ### END CODE HERE
     return

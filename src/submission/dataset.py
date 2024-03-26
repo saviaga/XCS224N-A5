@@ -220,9 +220,11 @@ if __name__ == '__main__':
     if args.dataset_type == 'namedata':
         # Even if it hasn't been implemented, we use it to define the vocab
         corruption_dataset = CharCorruptionDataset(open('./../data/wiki.txt', encoding='utf-8').read(), 128) 
+        print(len(corruption_dataset))
         # Make the name dataset
         name_dataset = NameDataset(open('./../data/birth_places_train.tsv', encoding='utf-8').read(),
                 corruption_dataset)
+        print(len(name_dataset))
         for _, example in zip(range(4), name_dataset):
             x, y = example
             print('x:', ''.join([name_dataset.itos[int(c)] for c in x]))
@@ -230,6 +232,7 @@ if __name__ == '__main__':
         pass
     elif args.dataset_type == 'charcorruption':
         corruption_dataset = CharCorruptionDataset(open('./../data/wiki.txt', encoding='utf-8').read(), 128) 
+        print(len(corruption_dataset))
         for _, example in zip(range(4), corruption_dataset):
             x, y = example
             print('x:', ''.join([corruption_dataset.itos[int(c)] for c in x]))
