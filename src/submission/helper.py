@@ -103,7 +103,7 @@ def finetune(reading_params_path, finetune_corpus_path, pretrain_dataset, block_
     train_dataset = NameDataset(data, pretrain_dataset)
 
     trainer_obj = Trainer(model, train_dataset, None, tconf)
-    trainer_obj.train()
+    
 
  
     ### END CODE HERE
