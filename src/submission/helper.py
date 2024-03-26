@@ -66,7 +66,8 @@ def finetune(reading_params_path, finetune_corpus_path, pretrain_dataset, block_
     trainer_obj = None #Trainer object (see trainer.py for more details)
     tconf = None #TrainerConfig object (see trainer.py for more details)
     
-    ### START CODE HERE
+    ### START CODE HERE 
+    #Without pretrained
 #     max_epochs = 75 if reading_params_path is None else 10
 #     batch_size = 256
 #     learning_rate = finetune_lr
@@ -75,7 +76,7 @@ def finetune(reading_params_path, finetune_corpus_path, pretrain_dataset, block_
 #     final_tokens = 200 * len(pretrain_dataset) * block_size
 #     num_workers = 4
 
-
+      #With pretrained
       max_epochs=10,
       batch_size=256,
       learning_rate=6e-4,
