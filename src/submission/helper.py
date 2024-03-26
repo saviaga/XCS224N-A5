@@ -150,7 +150,7 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
     )
 
     trainer_obj = Trainer(model, pretrain_dataset, None, tconf)
-    trainer_obj.train()
+
 
 
     ### END CODE HERE
