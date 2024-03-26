@@ -148,7 +148,7 @@ def pretrain(pretrain_dataset, block_size, model, pretrain_lr=6e-3, writer=None)
         final_tokens=final_tokens,
         num_workers=num_workers
     )
-
+    #trainer
     trainer_obj = Trainer(model, pretrain_dataset, None, tconf)
 
 
