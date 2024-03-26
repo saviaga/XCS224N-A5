@@ -101,7 +101,7 @@ class Trainer:
                     logits, loss = model(x, y)
                     loss = loss.mean() # collapse all losses if they are scattered on multiple gpus
                     losses.append(loss.item())
-
+                #training!
                 if is_train:
 
                     # backprop and update the parameters
